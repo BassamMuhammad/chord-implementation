@@ -3,10 +3,10 @@ export class Node {
   fingerTable;
   keys;
 
-  constructor(id, keys) {
+  constructor(id) {
     this.id = id;
     this.fingerTable = [];
-    this.keys = keys;
+    this.keys = [];
   }
 
   calculateFingerTable = (nodes) => {

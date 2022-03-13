@@ -22,32 +22,27 @@ export default function Home() {
   };
 
   const makeNewNodeAndStabilize = (id) => {
-    let predecessor = null;
     const tempNodes = [...nodes];
     const keysForNewNode = [];
-    for (const tempNode of tempNodes) {
-      if (parseInt(tempNode.id) > parseInt(id)) {
-        tempNode.keys = tempNode.keys.filter((key) => {
-          if (parseInt(key) > parseInt(id)) {
-            return true;
-          } else {
-            keysForNewNode.push(key);
-            return false;
-          }
-        });
-        break;
-      }
-      predecessor = tempNode;
-    }
-    const newNode = new Node(id, keysForNewNode);
+    const newNode = new Node(id);
     tempNodes.push(newNode);
     tempNodes = tempNodes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-    if (!predecessor && tempNodes.length > 0) {
-      predecessor = tempNodes[tempNodes.length - 1];
-      predecessor.calculateFingerTable(tempNodes);
-    }
+    const newNodeIndex = tempNodes.findIndex((tempNode) => tempNode.id === id);
+    tempNodes.forEach((tempNode) => {
+      tempNode.keys = tempNode.keys.filter((key) => {
+        if (
+          parseInt(key) > parseInt(id) ||
+          (parseInt(key) < parseInt(id) && parseInt(id) > parseInt(tempNode.id))
+        )
+          return true;
+        else {
+          keysForNewNode.push(key);
+          return false;
+        }
+      });
+    });
+    tempNodes[newNodeIndex].keys = keysForNewNode;
     tempNodes.forEach((tempNode) => tempNode.calculateFingerTable(tempNodes));
-    console.log(tempNodes);
     setNodes(tempNodes);
   };
 
@@ -76,14 +71,19 @@ export default function Home() {
 
   const addKey = () => {
     const id = getId(newKeyVal);
+    if (nodes.length <= 0) return;
     const tempNodes = [...nodes];
     let possibleNode = -1;
     tempNodes.forEach((tempNode, i) => {
-      if (parseInt(tempNode.id) > parseInt(id)) {
+      if (parseInt(tempNode.id) === parseInt(id)) {
+        possibleNode = i;
+        return;
+      } else if (parseInt(tempNode.id) > parseInt(id)) {
+        possibleNode = i;
         return;
       }
-      possibleNode = i;
     });
+    if (possibleNode < 0) possibleNode = 0;
     if (possibleNode >= 0) {
       tempNodes[possibleNode].keys.push(id);
       setNodes(tempNodes);
